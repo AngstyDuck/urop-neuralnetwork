@@ -1,5 +1,6 @@
 """
-README
+Logs
+Run this file, solve "name 'self' is not defined"
 
 
 """
@@ -71,9 +72,9 @@ def ExtractData(importDataDir):
         return trainFeaturesData, trainLabelData, testFeaturesData, testLabelData
 
 
-trainFeaturesData = ExtractData(DATASETDIRMNIST)[0]
-trainLabelData = ExtractData(DATASETDIRMNIST)[1]
-testFeaturesData, testLabelData = ExtractData(DATASETDIR69)
+train_features = ExtractData(DATASETDIRMNIST)[0]
+train_labels = ExtractData(DATASETDIRMNIST)[1]
+test_features, test_labels = ExtractData(DATASETDIR69)
 # -----------------------------------------------------------------------------
 
 def model(option, model, dataName):
@@ -83,15 +84,59 @@ def model(option, model, dataName):
             from CnnKeras.CnnMain import CnnMain as Model
             from CnnKeras.CnnMain import CnnPreprocess
 
-            train_features, train_labels = CnnPreprocess(dataName, ExtractData(DATASETDIRMNIST)[0], ExtractData(DATASETDIRMNIST)[1])
-            test_features, test_labels = CnnPreprocess(dataName, ExtractData(DATASETDIR69)[0], ExtractData(DATASETDIR69)[1])
+            model = Model(train_features, train_labels)
+            model.train(train_features, train_labels, "boi")
+
+        elif model == "capsnet":
+            from CapsnetKeras.CapsnetMain import CapsnetMain as Model
+            from CapsnetKeras.CapsnetMain import CapsnetPreprocess
+
+
+            train_features, train_labels = CapsnetPreprocess(dataName, train_features, train_labels)
+            test_features, test_labels = CapsnetPreprocess(dataName, test_features, test_labels)
+            model = Model(train_features, train_labels, test_features, test_labels, "./CapsnetKeras/backend/models/")
+            model.train()
+
+
+    elif option == "test":
+        # selecting model
+        if model == "cnn":
+            from CnnKeras.CnnMain import CnnMain as Model
+            from CnnKeras.CnnMain import CnnPreprocess
 
             model = Model(train_features, train_labels)
-            # model.train(train_features, train_labels, "boi")
-            model.test(train_features, train_labels, "./CnnKeras/backend/models/69dataset/0.h5")
+            model.test(test_features, test_labels, "./CnnKeras/backend/models/69dataset/0.h5")
+            
+    elif option == "getActivations":
+        # selecting model
+        if model == "cnn":
+            from CnnKeras.CnnMain import CnnMain as Model
+            from CnnKeras.CnnMain import CnnPreprocess
+
+            model = Model(train_features, train_labels)
+            model.getActivations(train_features, 5, "./CnnKeras/backend/models/69dataset/0.h5", "./CnnKeras/backend/layer_activations/69dataset/0_5.npy")
+
+    elif option == "getRdm":
+        # selecting model
+        if model == "cnn":
+            from CnnKeras.CnnMain import CnnMain as Model
+            from CnnKeras.CnnMain import CnnPreprocess
+
+            model = Model(train_features, train_labels)
+            model.getRdm("./CnnKeras/backend/layer_activations/69dataset/0_5.npy", "./CnnKeras/backend/rdm/69dataset/0_5.npy")
+            
+    elif option == "getSpearman":
+        # selecting model
+        if model == "cnn":
+            from CnnKeras.CnnMain import CnnMain as Model
+            from CnnKeras.CnnMain import CnnPreprocess
+
+            model = Model(train_features, train_labels)
+            model.getSpearman("./CnnKeras/backend/rdm/69dataset/69dataset.npy", "./CnnKeras/backend/rdm/69dataset/0_5.npy")
 
 
-model("train", "cnn", DATASETDIRMNIST)
+
+model("train", "capsnet", DATASETDIRMNIST)
 
 
 
